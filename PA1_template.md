@@ -5,17 +5,12 @@ output:
     keep_md: true
 ---
 
-```{r setoptions,echo=FALSE}
-# Set to save the figures into figure folder
-# Remove scientific notation
-library(knitr)
-opts_chunk$set(fig.path="figure/")
-options(scipen = 999)
-```
+
 
 ## Loading and preprocessing the data
 
-```{r load_data}
+
+```r
 # Unzip the file and read the csv 
 # Convert date column from factor into date format 
 unzip("activity.zip")
@@ -24,7 +19,8 @@ df$date <- as.Date(df$date,format="%Y-%m-%d")
 ```
 
 ## What is mean total number of steps taken per day?
-```{r totalSteps}
+
+```r
 # Compute sum of steps per day, save it as a dataframe
 # Plot histogram of total steps per day 
 totalStep <- with(df, tapply(steps, date, sum, na.rm = TRUE))
@@ -34,20 +30,33 @@ hist(df_totalStep$totalStep, main = "Histogram of Total Number of Steps Taken Ea
              "Total Number of Steps Per Day")
 ```
 
+![](figure/totalSteps-1.png)<!-- -->
+
 #### Mean of total number of steps taken per day (without NA)
-```{r meanStep}
+
+```r
 meanStep <- mean(df_totalStep$totalStep)
 print(meanStep)
 ```
 
+```
+## [1] 9354.23
+```
+
 #### Median of total number of steps taken per day (without NA)
-```{r medianStep}
+
+```r
 medianStep <- median(df_totalStep$totalStep)
 print(medianStep)
 ```
 
+```
+## [1] 10395
+```
+
 ## What is the average daily activity pattern?
-```{r averageStep}
+
+```r
 # Compute the average steps per interval
 # Convert factor to numeric so that the x-axis could be plotted correctly 
 averageStep <- with(df, tapply(steps, interval, mean, na.rm = TRUE))
@@ -86,18 +95,31 @@ text(
 )
 ```
 
+![](figure/averageStep-1.png)<!-- -->
+
 #### 5-minute interval that contains the maximum number of steps
-```{r maximumAverageStep}
+
+```r
 max_point$interval
+```
+
+```
+## [1] 835
 ```
 
 ## Imputing missing values
 #### Total number of missing values in the dataset 
-```{r countNARows}
+
+```r
 sum(is.na(df$steps))
 ```
+
+```
+## [1] 2304
+```
 #### Fill NA values with the mean of interval 
-```{r fillNA}
+
+```r
 # Merge original dataframe with averagestep (average steps of each interval) dataframe 
 df_new <- merge(df,df_averageStep)
 
@@ -108,39 +130,52 @@ df_new$steps <- ifelse(is.na(df_new$steps),df_new$averageStep,df_new$steps)
 df_new <- subset(df_new, select= -c(averageStep))
 ```
 
-```{r totalStepsNew}
+
+```r
 # Plot the histogram
 totalStepNew <- with(df_new, tapply(steps, date, sum, na.rm = TRUE))
 df_totalStepNew <-
   data.frame(date = names(totalStepNew), totalStep = totalStepNew)
 hist(df_totalStepNew$totalStep, main = "Histogram of Total Number of Steps Taken Each Day (NA replaced)", xlab =
        "Total Number of Steps Per Day")
-
 ```
 
+![](figure/totalStepsNew-1.png)<!-- -->
+
 #### Mean of total number of steps taken per day (NA replaced)
-```{r meanStepNew}
+
+```r
 meanStepNew <- mean(df_totalStepNew$totalStep)
 print(meanStepNew)
 ```
 
+```
+## [1] 10766.19
+```
+
 #### Median of total number of steps taken per day (NA replaced)
-```{r medianStepNew}
+
+```r
 medianStepNew <- median(df_totalStepNew$totalStep)
 print(medianStepNew)
+```
+
+```
+## [1] 10766.19
 ```
 
 The histogram for total number of steps taken each day after imputing data **show a more normally distributed graph** compared with the first part of assignment where most of the observations are around the central peak and number taper off equally in both directions.  
   
 Both mean and median have **increased** after imputing data.  
-**Mean** With NA removed : `r meanStep`  
-**Mean** With NA replaced : `r meanStepNew`  
-**Median** with NA removed : `r medianStep`  
-**Median** with NA replaced : `r medianStepNew`  
+**Mean** With NA removed : 9354.2295082  
+**Mean** With NA replaced : 10766.1886792  
+**Median** with NA removed : 10395  
+**Median** with NA replaced : 10766.1886792  
 Interestingly, mean and median are the same when NA is replaced with the mean of each interval.
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
 # Add a new column called day that differentiate between weekend and weekday
 # Split into weekday and weekend dataframe
 df_new$day <-
@@ -150,10 +185,10 @@ df_new$day <-
     "weekend",
     "weekday"
   )
-
 ```
 #### Compute average steps for weekday dataset 
-```{r weekdayStep}
+
+```r
 df_weekday <- subset(df_new, day == "weekday")
 weekday_averageStep <- with(df_weekday, tapply(steps, interval, mean, na.rm = TRUE))
 df_weekday_averageStep <-
@@ -163,7 +198,8 @@ df_weekday_averageStep$interval <-
 ```
 
 #### Compute average steps for weekend dataset  
-```{r weekendStep}
+
+```r
 df_weekend <- subset(df_new, day == "weekend")
 weekend_averageStep <- with(df_weekend, tapply(steps, interval, mean, na.rm = TRUE))
 df_weekend_averageStep <-
@@ -173,7 +209,8 @@ df_weekend_averageStep$interval <-
 ```
 
 #### Plot weekday and weekend plots within 1 column
-```{r plotWeekdays,fig.width=10,fig.height=10}
+
+```r
 par(mfrow = c(2, 1))
 # Plot the weekday plot
 with(
@@ -202,4 +239,6 @@ with(
         )
 )
 ```
+
+![](figure/plotWeekdays-1.png)<!-- -->
 The above two graphs show that **weekday has a higher peak** in general but **weekend has a much more active lifestyle**, especially towards the evening.  
